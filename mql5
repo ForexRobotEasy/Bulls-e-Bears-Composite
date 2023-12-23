@@ -1,0 +1,78 @@
+
+// Developer's site: forexroboteasy.com
+// Development: Forex Robot Easy Team
+
+#property copyright 'Copyright 2022, Forex Robot Easy Team'
+#property link 'forexroboteasy.com'
+
+#property indicator_chart_window
+#property indicator_buffers 2
+#property indicator_color1 Blue
+#property indicator_color2 Red
+
+// Input parameters
+input int period = 14; // Period for Bull-Bear Indicator
+
+// Indicator buffers
+double BullsBuffer[];
+double BearsBuffer[];
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set indicator buffers
+    SetIndexBuffer(0, BullsBuffer);
+    SetIndexBuffer(1, BearsBuffer);
+
+    // Set indicator labels
+    SetIndexLabel(0, 'Bulls');
+    SetIndexLabel(1, 'Bears');
+
+    // Set indicator styles
+    SetIndexStyle(0, DRAW_LINE);
+    SetIndexStyle(1, DRAW_LINE);
+
+    return INIT_SUCCEEDED;
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+int OnDeinit(const int reason)
+{
+    // Reset indicator buffers
+    ArrayInitialize(BullsBuffer, 0);
+    ArrayInitialize(BearsBuffer, 0);
+
+    return 0;
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total, const int prev_calculated, const datetime &time[], const double &open[], const double &high[], const double &low[], const double &close[], const long &tick_volume[], const long &volume[], const int &spread[])
+{
+    // Calculate Bull-Bear Indicator values
+    for (int i = prev_calculated; i < rates_total; i++)
+    {
+        double bullValue = 0;
+        double bearValue = 0;
+
+        for (int j = 0; j <= period; j++)
+        {
+            double diff = close[i] - close[i - j];
+
+            if (diff > 0)
+                bullValue += diff;
+            else if (diff < 0)
+                bearValue += MathAbs(diff);
+        }
+
+        BullsBuffer[i] = bullValue;
+        BearsBuffer[i] = bearValue;
+    }
+
+    return rates_total;
+}
